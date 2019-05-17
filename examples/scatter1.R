@@ -41,6 +41,8 @@ spec_mtcars <-
   list(
     `$schema` = vega_schema(), # specifies Vega-Lite
     description = "An mtcars example.",
+    width=640,
+    height=480,
     data = list(values = mtcars),
     mark = "point",
     encoding = list(

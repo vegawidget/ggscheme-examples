@@ -3,30 +3,29 @@ library(jsonlite)
 library(vegawidget)
 
 # ggplot2-object
-p <- ggplot(mtcars, aes(wt, mpg)) + 
-    geom_point(colour = "red", size = 3)
+p<-ggplot(diamonds, aes(carat, price))+ geom_point(alpha=1/100)
 p
 
 # ggschame based on ggscheme.json
+# The dataset diamond is so large. So we ignore the data attribute
 ggscheme<-list(
-    title="mtcars",
+    title="diamonds",
     width=640,
     height=480,
-    data=p$data,
+    data=c(),
     layer=list(
         layer1=list(
             mark=list(
                 type="geom_point",
-                color="red",
-                size=3
+                opacity=1/100
             ),
             encoding=list(
                 x=list(
-                    field="wt",type="numeric",
+                    field="carat",type="numeric",
                     scale=list(domain=c(1.32,5.62))
                 ),
                 y=list(
-                    field="mpg",type="numeric",
+                    field="price",type="int",
                     scale=list(domain=c(9.22,35.07))
                 )
             )
@@ -37,32 +36,33 @@ ggscheme<-list(
 ggscheme<-toJSON(ggscheme)
 ggscheme
 
+
 # vega-lite spec
-spec_mtcars <-
+spec_diamonds <-
   list(
     `$schema` = vega_schema(), # specifies Vega-Lite
-    description = "An mtcars example.",
+    description = "An diamonds example.",
     width=640,
     height=480,
-    data = list(values = mtcars),
+    data = list(values = diamonds),
     mark = list(
         type="point",
-        color="red",
-        size=c(3)
+        opacity=1/100
     ),
     encoding = list(
-        x = list(
-            field = "wt", type = "quantitative",
-            scale=list(domain=c(1.32,5.62))
+      x = list(
+            field = "carat", type = "quantitative",
+            scale=list(domain=c(-0.04,5.25))
         ),
         y=list(
-            field = "mpg", type = "quantitative",
-            scale=list(domain=c(9.22,35.07))
+            field = "price", type = "quantitative",
+            scale=list(domain=c(-598.85,19747.85))
+
         )
     )
-  )
+  ) 
 
-as_vegaspec(spec_mtcars)
+as_vegaspec(spec_diamonds)
   
-vlspec<-toJSON(spec_mtcars)
+vlspec<-toJSON(spec_diamonds)
 vlspec
