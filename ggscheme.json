@@ -1,0 +1,32 @@
+{
+    "title":"",
+    "width":0,
+    "height":0,
+    "data":[],
+    "layer":[
+        {
+            "mark":{
+                "type":"datatype",
+                "color":"",
+                "size":"",
+                "shape":"",
+                "opacity":""
+            },
+            "encoding":{
+                "x":{
+                    "field":"name",
+                    "type":"datatype",
+                    "aggregate":"Aggregation function for the field\n(e.g., `mean`, `sum`, `median`, `min`, `max`, `count`).",
+                    "axis":"properties of axis like: angle, color, title, size...Maybe from ggplot theme"
+                },
+                "y":"like x",
+                "color":"like x except axis",
+                "shape":"like color",
+                "size":"like color",
+                "text":"like color",
+                "opacity":"like color"        
+            }
+        }
+    ]
+    
+}
