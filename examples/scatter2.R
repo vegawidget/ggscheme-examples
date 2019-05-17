@@ -3,8 +3,8 @@ library(jsonlite)
 library(vegawidget)
 
 # ggplot2-object
-p<-ggplot(mtcars, aes(wt, mpg, colour = factor(cyl))) + 
-  geom_point()
+p <- ggplot(mtcars, aes(wt, mpg)) + 
+    geom_point(colour = "red", size = 3)
 p
 
 # ggschame based on ggscheme.json
@@ -16,7 +16,9 @@ ggscheme<-list(
     layer=list(
         layer1=list(
             mark=list(
-                type="geom_point"
+                type="geom_point",
+                color="red",
+                size=3
             ),
             encoding=list(
                 x=list(
@@ -26,8 +28,7 @@ ggscheme<-list(
                 y=list(
                     field="mpg",type="numeric",
                     scale=list(domain=c(9.22,35.07))
-                ),
-                color = list(field = "factor(cyl)", type = "factor")
+                )
             )
         )
     )
@@ -42,19 +43,22 @@ spec_mtcars <-
     `$schema` = vega_schema(), # specifies Vega-Lite
     description = "An mtcars example.",
     data = list(values = mtcars),
-    mark = "point",
+    mark = list(
+        type="point",
+        color="red",
+        size=c(3)
+    ),
     encoding = list(
-      x = list(
+        x = list(
             field = "wt", type = "quantitative",
             scale=list(domain=c(1.32,5.62))
         ),
         y=list(
             field = "mpg", type = "quantitative",
             scale=list(domain=c(9.22,35.07))
-        ),
-        color = list(field = "cyl", type = "nominal")
+        )
     )
-  ) 
+  )
 
 as_vegaspec(spec_mtcars)
   
