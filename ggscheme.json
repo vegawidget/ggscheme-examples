@@ -27,7 +27,9 @@
                 "shape": "like color",
                 "size": "like color",
                 "text": "like color",
-                "opacity": "like color"
+                "opacity": "like color",
+                "fill":"like color",
+                "weight":"If weight is NULL, bar will use count aggregate; If weight defined, bar will use the field and sum aggregate"
             }
         }
     ]
