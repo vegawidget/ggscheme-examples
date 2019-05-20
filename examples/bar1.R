@@ -48,6 +48,7 @@ spec_mtcars <-
     mark = "bar",
     encoding = list(
       x = list(
+          
             field = "class", type = "nominal",
             axis = list(labelAngle = 0)
         ),

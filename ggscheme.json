@@ -21,7 +21,10 @@
                     "scale":{
                         "domain":"Range of the xaxis. Should be a two numbers array like [100,300]"
                     },
-                    "bins":"The number of bins of bar or histogram. In ggplot2, the default bins is 30. In vega, default bins is 10. So we use 30 as out default bins"
+                    "bin":{
+                        "bins":"The number of bins of bar or histogram. In ggplot2, the default bins is 30. In vega, default bins is 10. So we use 30 as out default bins",
+                        "binwidth":"A number, width of a bin"
+                    }
                 },
                 "y": "like x",
                 "color": "like x except axis and scale",

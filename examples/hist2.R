@@ -8,8 +8,8 @@ housing$Home_Value<-housing$Home.Value
 
 
 # ggplot2-object
-gg <- ggplot(housing, aes(x = Home.Value)) +
-  geom_histogram()
+gg <- ggplot(housing, aes(x = Home_Value)) +
+  geom_histogram(stat = "bin", binwidth=4000)
 gg
 
 # ggschame based on ggscheme.json
@@ -26,7 +26,10 @@ ggscheme<-list(
             ),
             encoding=list(
                 x=list(
-                    bins=30,
+                    bin=list(
+                        bins=30,
+                        binwidth=4000
+                    ),
                     field="Home_Value",type="numeric",
                     scale=list(domain=c(-1000,1000000))
                 ),
@@ -56,7 +59,8 @@ spec_house <-
     encoding = list(
       x = list(
             bin=list(
-                maxbins=30
+                maxbins=30,
+                step=4000
             ),
             field = "Home_Value", type = "quantitative",
             axis = list(labelAngle = 0)
@@ -72,7 +76,3 @@ as_vegaspec(spec_house)
   
 vlspec<-toJSON(spec_house)
 vlspec
-
-spec_house
-
-housing
