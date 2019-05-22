@@ -10,7 +10,7 @@ df
 
 # ggplot2-object
 gg<-ggplot(df, aes(x=dose, y=len, group=supp)) +
-  geom_line(aes(linetype=supp))+
+  geom_line(aes(color=supp))+
   geom_point()
 gg
 
@@ -19,7 +19,7 @@ ggscheme<-list(
     title="df",
     width=640,
     height=480,
-    data=c(),
+    data=df,
     layer=list(
         layer1=list(
             mark=list(
@@ -40,7 +40,8 @@ ggscheme<-list(
         ),
         layer2=list(
             mark=list(
-                type="geom_point"
+                type="geom_point",
+                filled=TRUE
             ),
             encoding=list(
                 x=list(
@@ -49,9 +50,6 @@ ggscheme<-list(
                 y=list(
                     field="len",type="numeric",
                     scale=list(domain=c(102.76,134.44))
-                ),
-                color=list(
-                    field="supp", type="character"
                 )
             )
         )
@@ -59,8 +57,8 @@ ggscheme<-list(
     )
 )
 
-ggscheme<-toJSON(ggscheme)
-ggscheme
+ggscheme<-toJSON(ggscheme,auto_unbox=TRUE)
+write(ggscheme,'test.json')
   
 # vega-lite spec
 spec_df<-list(
@@ -98,9 +96,6 @@ spec_df<-list(
             y=list(
                 field = "len", type = "quantitative",
                 scale=list(domain=c(102.76,134.44))       
-            ),
-            color=list(
-                field="supp", type = "nominal"  
             )
         )
         )

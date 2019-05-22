@@ -6,6 +6,7 @@ library(vegawidget)
 p<-ggplot(mtcars, aes(wt, mpg, colour = factor(cyl))) + 
   geom_point()
 p
+p$data$'factor(cyl)'=factor(p$data$cyl)
 
 # ggschame based on ggscheme.json
 ggscheme<-list(
@@ -33,7 +34,7 @@ ggscheme<-list(
     )
 )
 
-ggscheme<-toJSON(ggscheme)
+ggscheme<-toJSON(ggscheme,auto_unbox = TRUE)
 ggscheme
 
 # vega-lite spec

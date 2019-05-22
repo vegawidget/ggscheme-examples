@@ -12,7 +12,7 @@ ggscheme<-list(
     title="diamonds",
     width=640,
     height=480,
-    data=c(),
+    data=diamonds,
     layer=list(
         layer1=list(
             mark=list(
@@ -22,19 +22,20 @@ ggscheme<-list(
             encoding=list(
                 x=list(
                     field="carat",type="numeric",
-                    scale=list(domain=c(1.32,5.62))
+                    scale=list(domain=c(0,5))
                 ),
                 y=list(
                     field="price",type="int",
-                    scale=list(domain=c(9.22,35.07))
+                    scale=list(domain=c(0,20000))
                 )
             )
         )
     )
 )
 
-ggscheme<-toJSON(ggscheme)
+ggscheme<-toJSON(ggscheme,auto_unbox=TRUE)
 ggscheme
+write(ggscheme,file="test.json")
 
 
 # vega-lite spec

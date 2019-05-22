@@ -10,7 +10,8 @@
                 "color": "",
                 "size": "",
                 "shape": "",
-                "opacity": ""
+                "opacity": "",
+                "filled":"true or false"
             },
             "encoding": {
                 "x": {

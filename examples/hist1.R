@@ -18,7 +18,7 @@ ggscheme<-list(
     title="housing",
     width=640,
     height=480,
-    data=c(),
+    data=housing,
     layer=list(
         layer1=list(
             mark=list(
@@ -26,7 +26,9 @@ ggscheme<-list(
             ),
             encoding=list(
                 x=list(
-                    bins=30,
+                    bin=list(
+                        bins=30
+                    ),
                     field="Home_Value",type="numeric",
                     scale=list(domain=c(-1000,1000000))
                 ),
@@ -41,8 +43,8 @@ ggscheme<-list(
     )
 )
 
-ggscheme<-toJSON(ggscheme)
-ggscheme
+ggscheme<-toJSON(ggscheme,auto_unbox=TRUE)
+write(ggscheme,'test.json')
 
 # vega-lite spec
 spec_house <-

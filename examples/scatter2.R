@@ -34,7 +34,7 @@ ggscheme<-list(
     )
 )
 
-ggscheme<-toJSON(ggscheme)
+ggscheme<-toJSON(ggscheme,auto_unbox = TRUE)
 ggscheme
 
 # vega-lite spec
@@ -48,7 +48,7 @@ spec_mtcars <-
     mark = list(
         type="point",
         color="red",
-        size=c(3)
+        size=3
     ),
     encoding = list(
         x = list(
@@ -63,6 +63,5 @@ spec_mtcars <-
   )
 
 as_vegaspec(spec_mtcars)
-  
-vlspec<-toJSON(spec_mtcars)
+vlspec<-toJSON(spec_mtcars,auto_unbox = TRUE)
 vlspec

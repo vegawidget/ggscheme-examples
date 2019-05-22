@@ -12,7 +12,7 @@ ggscheme<-list(
     title="mpg",
     width=640,
     height=480,
-    data=c(),
+    data=mpg,
     layer=list(
         layer1=list(
             mark=list(
@@ -37,8 +37,8 @@ ggscheme<-list(
     )
 )
 
-ggscheme<-toJSON(ggscheme)
-ggscheme
+ggscheme<-toJSON(ggscheme,auto_unbox=TRUE)
+write(ggscheme,"test.json")
 
 # vega-lite spec
 spec_mtcars <-
