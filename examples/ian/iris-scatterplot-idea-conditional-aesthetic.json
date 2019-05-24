@@ -1,0 +1,24 @@
+{
+  "data": {
+    "data-00": {
+      "meta": {},
+      "df": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "mapping": {
+        "x": {"field": "Petal.Width"},
+        "y": {"field": "Petal.Length"}
+      },
+      "aes_params": {
+        "colour": {
+          "condition": {"selection": "brush", "alternate_value": "grey"},
+          "value": "red"
+        }
+      }
+    }
+  ],
+  "scales": {},
+  "labels": {}
+}

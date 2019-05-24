@@ -1,0 +1,33 @@
+---
+title: Iris scatterplot 01
+---
+
+
+```{r setup}
+# all from CRAN
+library("ggplot2")
+library("readr")
+library("listviewer")
+```
+
+Here's a ggplot:
+
+```{r}
+p <-
+  ggplot(iris) +
+  geom_point(aes(x = Petal.Width, y = Petal.Length), color = "red") + 
+  scale_y_continuous(trans = "log10") + 
+  labs(
+    title = "Hello World"
+  )
+
+p
+```
+
+Here's a proposal for a ggspec:
+
+```{r}
+json <- read_file("iris-scatterplot-01.json")
+jsonedit(json, mode = "code")
+```
+
