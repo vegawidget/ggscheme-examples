@@ -1,0 +1,87 @@
+---
+title: "mtcars01"
+author: "wenyu"
+date: "2019/5/24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+# all from CRAN
+library("ggplot2")
+library("readr")
+library("listviewer")
+library("vegawidget")
+library("jsonlite")
+```
+
+## ggplot2-object
+
+```{r}
+p<-ggplot(mtcars, aes(log(wt), mpg*mpg-mpg/mpg, colour = factor(cyl))) + geom_point()
+p
+```
+
+```{r}
+
+p$mapping
+
+
+```
+
+## formula in mapping
+
+In ggplot2, the mapping could be a formula rather than a variable. If class(p[["mapping"]][["y"]][[2]]) is "call" rather than a "name". That means p[["mapping"]][["y"]][[2]] is a formula. My idea is to add these formula as fields to the original dataset. 
+
+
+```{r}
+data("mtcars")
+
+class(p[["mapping"]][["y"]][[2]])
+mtcars <- model.frame( ~.+eval(p[["mapping"]][["y"]][[2]]), data = mtcars)
+colnames(mtcars)[12]=deparse(p[["mapping"]][["y"]][[2]])
+
+mtcars <- model.frame( ~.+eval(p[["mapping"]][["x"]][[2]]), data = mtcars)
+colnames(mtcars)[13]=deparse(p[["mapping"]][["x"]][[2]])
+
+mtcars <- model.frame( ~.+eval(p[["mapping"]][["colour"]][[2]]), data = mtcars)
+colnames(mtcars)[14]=deparse(p[["mapping"]][["colour"]][[2]])
+
+colnames(mtcars)
+```
+
+
+```{r}
+mtcars$'factor(cyl)'=factor(mtcars$cyl)
+# vega-lite spec
+spec_mtcars <-
+  list(
+    `$schema` = vega_schema(), # specifies Vega-Lite
+    data = list(values = mtcars),
+    mark = "point",
+    encoding = list(
+      x = list(
+            field = deparse(p[["mapping"]][["x"]][[2]]), type = "quantitative",
+            scale=list(zero=FALSE,padding=20)
+        ),
+        y=list(
+            field = deparse(p[["mapping"]][["y"]][[2]]), type = "quantitative",
+            scale=list(zero=FALSE,padding=20)
+        ),
+        color = list(field = deparse(p[["mapping"]][["colour"]][[2]]), type = "nominal")
+    )
+  ) 
+
+as_vegaspec(spec_mtcars)
+```
+
+

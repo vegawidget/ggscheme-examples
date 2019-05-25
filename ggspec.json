@@ -1,0 +1,57 @@
+{
+    "data": {
+        "data-00": {
+            "metadata": {},
+            "observations": [
+                {},
+                {}
+            ]
+        }
+    },
+    "layer": [
+        {
+            "data": "data-00",
+            "geom": {
+                "class": "GeomPoint",
+                "color": "",
+                "size": "",
+                "shape": "",
+                "opacity": "",
+                "filled": "true or false"
+            },
+            "mapping": {
+                "x": {
+                    "field": "name",
+                    "type": "datatype",
+                    "aggregate": "Aggregation function for the field\n(e.g., `mean`, `sum`, `median`, `min`, `max`, `count`).",
+                    "axis": "properties of axis like: angle, color, title, size...Maybe from ggplot theme",
+                    "bin": {
+                        "bins": "The number of bins of bar or histogram. In ggplot2, the default bins is 30. In vega, default bins is 10. So we use 30 as out default bins",
+                        "binwidth": "A number, width of a bin"
+                    }
+                },
+                "y": "like x",
+                "color": "like x except axis and scale",
+                "shape": "like color",
+                "size": "like color",
+                "text": "like color",
+                "opacity": "like color",
+                "fill": "like color",
+                "weight": "If weight is NULL, bar will use count aggregate; If weight defined, bar will use the field and sum aggregate"
+            },
+            "scale": [
+                {
+                    "class": "ScaleContinuousPosition",
+                    "aesthetics": [
+                        "y"
+                    ],
+                    "transform": {
+                        "type": "log",
+                        "base": 10
+                    }
+                }
+            ],
+            "labels": {}
+        }
+    ]
+}
