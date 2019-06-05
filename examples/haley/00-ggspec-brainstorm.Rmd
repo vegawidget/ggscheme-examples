@@ -1,0 +1,457 @@
+---
+title: "First thoughts for a ggspec function"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+library("ggplot2")
+library("dplyr")
+```
+
+
+### Composing the function
+
+<br/>
+
+**Initial plan of attack**:
+
+Start with small, simple components to extract certain elements we need. Then work to combine these components to build the full ggspec. We suspect that we will make heavy use of `purrr` and `rlang`.
+
+
+<br/>
+
+<!--
+**TODO**:  
+
+- How to iterate through the list of layers?  
+- How to compose the ggspec with the elements we have extracted?
+
+<br/>
+
+**Potentially useful functions**:
+
+
+
+- `digest::??` for hashing
+
+- `purrr::pluck()` & `purrr::chuck()`: implement a generalised form of [[ that allow you to index deeply and flexibly into data structures. 
+  - `pluck()` consistently returns NULL when an element does not exist  
+  - `chuck()` always throws an error in that case.  
+
+
+- `purrr::attr_getter()` takes an attribute name and returns a function to access the attribute.
+  - Use in conjunction with `purrr::pluck()` for extracting deeply into a data structure  
+  - i.e. first extract by position, then by attribute  
+
+- `rlang::`%@%``: the Infix attribute accessor and setter  
+  - this operater extracts attributes
+
+- `purrr::detect()` to find the value or position of the first match
+  - or maybe `purrr::has_element()`??  
+  
+- `purrr::reduce()`: reduce a list to a single value by iteratively applying a binary function
+  
+- a lookup table? Use `match()`? (Ref: Adv-R 4.5 but prob too simple?)  
+
+- `rlang::fn_env()` or `rlang::env_print()` to look at the enclosing environment of the function
+
+- Function factories + functionals (Ref: Adv-R 10.5)
+
+<br/>
+-->
+
+---
+
+## Extracting elements
+
+<br/>
+
+```{r}
+p <- ggplot(iris) + 
+  geom_point(aes(x = Petal.Width, y = Petal.Length -.01)) + 
+  geom_point(aes(x = Petal.Width, y = Petal.Length), color = "firebrick") +
+  scale_y_log10() 
+
+p
+```
+
+<br/>
+
+---
+
+### Extracting functions contained in the ggplot2 object
+
+A ggplot2 object contains functions which contain the *intention* (i.e. `log10`). We wish to capture the function and use the `digest` package to make a hash of the function. If we can recognize the hash, we can translate the function's intention into the Vega-lite version of the function. We will also need to be able to recognize the `waiver()` function and know to use the defaults.
+
+<br/>
+
+---
+
+### Extracting data
+
+
+**Proposal**: Save the data at top-level and then have a reference to the appropriate data within the layers as such:
+
+```
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  }
+}
+```
+
+<br/>
+
+**Default data**:
+
+Proposal on how to extract it:
+  
+```{r}
+# get_data_default <- function
+purrr::pluck(p, "data") %>% head()
+```
+  
+<br/> 
+  
+**Layer data**:
+
+For the data within each layer, we have a choice of writing out `NULL` when the default data is to be used, or to replace the `NULL` with our default data.
+
+Proposal on how to extract it:
+
+```{r}
+purrr::pluck(p, "layers", 1, "data") %>% head()
+```
+
+Option to replace `NULL`:
+
+```{r}
+purrr::pluck(p, "layers", 1, "data", .default = purrr::pluck(p, "data")) %>% head()
+```
+
+<br/>
+
+**Issues**:
+
+Data duplication issue: when spec is made, check for duplicate names according to a hash and remove duplicates.  
+
+**Question**: How to distinguish `nominal` vs. `ordinal`?  
+
+- Does `character` $\implies$ `nominal` and `factor` $\implies$ `ordinal`?  
+- Or no levels in metadata $\implies$ `nominal`?  
+- UNLESS it is ordered by a scale or other variable  
+  - Note that Vega-lite has you put the order in `"scale"`, but you can also add a `"sort"` parameter in the encodings.  
+  - Factor Reorder: How to pull apart and leave enough info to then put into `"sort"` in Vega-lite?  
+  
+**Question**: How to store the levels of a factor? 
+
+- data could have attched metadata which could contain factor levels and timezones
+
+We could use `purrr::detect_index()` to find the location of the factor and then extract the levels with `purrr::pluck()`. We could also add that this function only needs to run if there is a factor detected.
+
+```{r}
+loc <- purrr::detect_index(p$data, is.factor)
+purrr::pluck(p, "data", loc, levels)
+```
+
+
+
+<br/>
+
+---
+
+### Extracting layers
+
+Within each layer-object, we need:  
+1. data (see above)   
+2. geom  
+3. mapping  
+4. aes_params  
+5. stat (maybe)  
+6. stat_params (maybe)  
+
+
+<br/>
+
+**The geom**:  
+
+For the moment, we think we only need the class of the `geom`. Ian has proposed that we think of this an object that has a class element and we can add other elements for other geoms as needed.
+
+Function to extract it:
+
+```{r}
+#get_class <- purrr::attr_getter("class")
+purrr::pluck(p, "layers", 1, "geom", class)
+```
+
+We will need to apply this function to every layer. 
+
+```{r}
+#get_class <- purrr::attr_getter("class")
+get_geom_class <- function(index){
+  purrr::pluck(p, "layers", index, "geom", class)
+}
+```
+
+```{r}
+get_geom_class(1)
+get_geom_class(2)
+```
+
+<br/>
+
+**The mapping**:  
+
+The mappings tells us which aesthetics are mapped to which variables in the data. For the moment, we can support only names of variables. We will have to think about how to deal with transformations. 
+
+To make Wenyu’s life a little easier, we propose to include a type field that will have one of the Vega-Lite types. To make Wenyu’s life a little more-difficult, we would like him to recognize the . in the variable name and insert a double-backslash in the Vega-Lite field.
+
+The info we need lives in a named list, where each element of the list is a quosure with `~` as the function, the variable that is to be mapped as the argument, and an attribute that stores the environment.
+
+```{r, eval = FALSE}
+str(p$layers[[1]][["mapping"]])
+```
+
+Function to extract the aesthetics to be mapped to:
+
+```{r}
+#get_names <- purrr::attr_getter("names")
+purrr::pluck(p, "layers", 1, "mapping", names)
+```
+
+Function to extract variable names to map to the aesthetics:  
+
+```{r}
+purrr::pluck(p, "layers", 1, "mapping", 1, rlang::get_expr)
+purrr::pluck(p, "layers", 1, "mapping", 2, rlang::get_expr)
+```
+
+**Question**: Do we need to know that the env is the Global Env?
+
+IDEA: We could get the names of the list and then use those names to travel deeper into the list.
+
+```{r}
+purrr::pluck(p, "layers", 1, "mapping", "x", rlang::get_expr)
+# Or if it should be quoted:
+purrr::pluck(p, "layers", 1, "mapping", "x", rlang::quo_name)
+```
+
+<br/>
+
+**The aesthetic parameters**:  
+
+<br/>
+
+**The stat**:  
+
+
+<br/>
+
+**The stat parameters**:  
+
+
+
+
+<br/>
+
+---
+
+### Extracting scales  
+
+We should note that in the plot object, scales only appear if they are specified by the user.
+
+<br/>
+
+**Scale aesthetics**:  
+
+The aesthetics element, `p$scales$scales[[1]]$aesthetics` contains all the aesthetics that the scale will apply to. In Vega-Lite, the scale is defined alongside the encoding for the channel, and where channels will share a scale - it is defined only once (presumably for the first channel that uses the scale). This is something we should be able to accomodate. In ggplot2, every aesthetic must have a scale. We just need to figure out where it lives, and what the defaults are. 
+
+For the scales that are specified, we can check for the aesthetics that the scale is to be applied to with `p$scales$scales[[1]]$aesthetics`.  **We will need to determine how to match this aesthetic with the aesthetics defined in the mappings**.
+
+Where it lives:
+
+```{r}
+p$scales$scales[[1]]$aesthetics
+```
+
+
+Function to exract it:
+
+```{r}
+purrr::pluck(p, "scales", "scales", 1, "aesthetics")
+```
+
+<br/>
+
+**Scale type**:
+
+As mentioned above, unless the scales have been modified from the defaults, `plot$scales$scales` is empty until the plot is built. If we need to determine the scale type, we could *potentially* look in the built plot object, where we would have a list with an element for each aesthetic. However, it would be nice to, instead, figure out where those defaults live.
+
+For the scales that are specified, we can check for the `class` of the scale with `class(p$scales$scales[[1]])`. Note that the scale type will override the variable type.
+
+```{r}
+class(p$scales$scales[[1]])
+```
+
+```{r}
+purrr::pluck(p, "scales", "scales", 1, class)
+```
+
+<br/>
+
+**Scale transformations**
+
+The scale transformations live in `p$scales$scales[[1]]$trans$transform`.
+
+
+```{r}
+str(p$scales$scales[[1]]$trans)
+```
+
+<br/>
+
+**Question**: Are any other elements of this list useful to us?
+
+<br/>
+
+We have a function in `p$scales$scales[[1]]$trans$transform` where the enclosed environment contains arguments for the function.
+
+
+
+```{r}
+p$scales$scales[[1]]$trans$transform
+tran_env <- rlang::env_print(p$scales$scales[[1]]$trans$transform)
+tran_env$base
+rlang::fn_env(p$scales$scales[[1]]$trans$transform)$base
+```
+
+<br/>
+
+**Question**: How to recognize that this is contains a `log()` function and then pull out the value of `base`?  **We might have to look at the abstract-syntax tree here**. 
+
+---
+
+In general, essentially, we want to be able to recognize commonly-used ggplot2 scale-functions that have Vega-Lite equivalents.
+
+At the higher-level, we want to:
+
+ - recognize the `class` of the scale
+ - note which aesthetics is applies to (keeping only `y` for now, but others will be useful)
+ - recognize that the transform uses a `log()` function
+ - get the value of `base`
+ 
+ 
+<br/>
+
+---
+
+## Adding elements
+
+<br/>
+
+### Adding selections
+
+Two initial methods of definings selections in Vega-lite: conditional aesthetics and adding an additional layer. 
+  
+  1. Conditional aesthetics  
+  - If aesthetic is `color = "grey"` where `grey` is also an object  
+  - then it will plot AND `grey` still contains its attribute.  
+    - How to add custom aesthetics?  
+  - How to define these selections?  
+    - a second aesthetic `x_alt`??  
+    - it shows up in ...  (notes ended here :( )
+  
+  2. Adding an additional layer  
+  - would be invisible but contain the selection info?
+  - or is there a better way to go about this?
+  
+
+
+Figure composition selections: will require that the same name be used within ALL of the charts to be composed
+
+<br/>
+
+---
+
+
+## How to structure this?
+
+```{r echo = FALSE, eval=FALSE}
+library(jsonlite)
+ggspec_iris <- jsonlite::read_json("../ian/iris-scatterplot-01.json") #iris-scatterplot-01.json")
+str(ggspec_iris)
+```
+
+Perhaps the ggspec should always be a list of 9 in order to be faithful to ggplots?
+
+That way I will know where to place the items I will be extracting from the ggplot2 object.
+
+I could also construct my list items separately and then construct them together to make the 'list of 9'.
+
+
+```{r, eval = FALSE}
+ggspec <- list(
+  data = list(
+    `data-00` = list(
+      metadata = list(),
+      observations = list()
+    )
+  ),
+  layers = list(
+    list(
+      data,
+      geom = list(
+        class
+      ),
+      mapping = list(
+        x = list(
+          field, 
+          type
+        ),
+        y = list(
+          field, 
+          type
+        )
+      ),
+      aes_params = list(
+        colour = list(
+          value
+        )
+      )
+    )
+  ),
+  scales = list(
+    list(
+      class,
+      aesthetics = list( 
+        chr
+      ),
+      transform = list(
+        type,
+        base
+      )
+    )
+  ), 
+  labels = list(
+    title,
+    x,
+    y
+  )
+)
+```
+
+
+
+
+
+
+
+
+
