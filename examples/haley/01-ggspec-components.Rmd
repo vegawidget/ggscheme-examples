@@ -174,7 +174,7 @@ get_layer_data <- function(ind) {
 ```{r}
 get_layer_geom <- function(ind){
   list(
-    class = purrr::pluck(p, "layers", ind, "geom", class)
+    class = purrr::pluck(p, "layers", ind, "geom", class, 1)
   )
 }
 ```
@@ -236,7 +236,7 @@ For right now, we will just extract the class.
 ```{r}
 get_layer_stat <- function(ind){
   list(
-    class = purrr::pluck(p, "layers", ind, "stat", class)
+    class = purrr::pluck(p, "layers", ind, "stat", class, 1)
   )
 }
 ```

@@ -159,7 +159,7 @@ get_layer_data <- function(ind) {
 ``` r
 get_layer_geom <- function(ind){
   list(
-    class = purrr::pluck(p, "layers", ind, "geom", class)
+    class = purrr::pluck(p, "layers", ind, "geom", class, 1)
   )
 }
 ```
@@ -169,7 +169,7 @@ str(get_layer_geom(1))
 ```
 
     ## List of 1
-    ##  $ class: chr [1:4] "GeomPoint" "Geom" "ggproto" "gg"
+    ##  $ class: chr "GeomPoint"
 
 <br/>
 
@@ -234,7 +234,7 @@ For right now, we will just extract the class.
 ``` r
 get_layer_stat <- function(ind){
   list(
-    class = purrr::pluck(p, "layers", ind, "stat", class)
+    class = purrr::pluck(p, "layers", ind, "stat", class, 1)
   )
 }
 ```
@@ -244,7 +244,7 @@ str(get_layer_stat(2))
 ```
 
     ## List of 1
-    ##  $ class: chr [1:4] "StatIdentity" "Stat" "ggproto" "gg"
+    ##  $ class: chr "StatIdentity"
 
 <br/>
 
@@ -276,7 +276,7 @@ str(map(1:2, get_layers))
     ##  $ :List of 7
     ##   ..$ data       : chr "data-00"
     ##   ..$ geom       :List of 1
-    ##   .. ..$ class: chr [1:4] "GeomPoint" "Geom" "ggproto" "gg"
+    ##   .. ..$ class: chr "GeomPoint"
     ##   ..$ geom_params: list()
     ##   ..$ mapping    :List of 2
     ##   .. ..$ x:List of 2
@@ -287,12 +287,12 @@ str(map(1:2, get_layers))
     ##   .. .. ..$ type : NULL
     ##   ..$ aes_params : NULL
     ##   ..$ stat       :List of 1
-    ##   .. ..$ class: chr [1:4] "StatIdentity" "Stat" "ggproto" "gg"
+    ##   .. ..$ class: chr "StatIdentity"
     ##   ..$ stat_params: list()
     ##  $ :List of 7
     ##   ..$ data       : chr "data-00"
     ##   ..$ geom       :List of 1
-    ##   .. ..$ class: chr [1:4] "GeomPoint" "Geom" "ggproto" "gg"
+    ##   .. ..$ class: chr "GeomPoint"
     ##   ..$ geom_params: list()
     ##   ..$ mapping    :List of 2
     ##   .. ..$ x:List of 2
@@ -304,7 +304,7 @@ str(map(1:2, get_layers))
     ##   ..$ aes_params :List of 1
     ##   .. ..$ colour: chr "firebrick"
     ##   ..$ stat       :List of 1
-    ##   .. ..$ class: chr [1:4] "StatIdentity" "Stat" "ggproto" "gg"
+    ##   .. ..$ class: chr "StatIdentity"
     ##   ..$ stat_params: list()
 
 <br/>
@@ -411,7 +411,7 @@ str(p_spec)
     ##   ..$ :List of 7
     ##   .. ..$ data       : chr "data-00"
     ##   .. ..$ geom       :List of 1
-    ##   .. .. ..$ class: chr [1:4] "GeomPoint" "Geom" "ggproto" "gg"
+    ##   .. .. ..$ class: chr "GeomPoint"
     ##   .. ..$ geom_params: list()
     ##   .. ..$ mapping    :List of 2
     ##   .. .. ..$ x:List of 2
@@ -422,12 +422,12 @@ str(p_spec)
     ##   .. .. .. ..$ type : NULL
     ##   .. ..$ aes_params : NULL
     ##   .. ..$ stat       :List of 1
-    ##   .. .. ..$ class: chr [1:4] "StatIdentity" "Stat" "ggproto" "gg"
+    ##   .. .. ..$ class: chr "StatIdentity"
     ##   .. ..$ stat_params: list()
     ##   ..$ :List of 7
     ##   .. ..$ data       : chr "data-00"
     ##   .. ..$ geom       :List of 1
-    ##   .. .. ..$ class: chr [1:4] "GeomPoint" "Geom" "ggproto" "gg"
+    ##   .. .. ..$ class: chr "GeomPoint"
     ##   .. ..$ geom_params: list()
     ##   .. ..$ mapping    :List of 2
     ##   .. .. ..$ x:List of 2
@@ -439,7 +439,7 @@ str(p_spec)
     ##   .. ..$ aes_params :List of 1
     ##   .. .. ..$ colour: chr "firebrick"
     ##   .. ..$ stat       :List of 1
-    ##   .. .. ..$ class: chr [1:4] "StatIdentity" "Stat" "ggproto" "gg"
+    ##   .. .. ..$ class: chr "StatIdentity"
     ##   .. ..$ stat_params: list()
     ##  $ scales:List of 1
     ##   ..$ :List of 3
