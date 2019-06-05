@@ -72,7 +72,7 @@ This tells us that this layer uses the default dataset, in our case `"data-00"`.
 str(p$layers[[1]][["geom"]])
 ```
 
-I think, in this case, we need only know that the `geom` has class `"GeomPoint"`. For other geoms, we may need more information, so I propose that we think of this an an object that has a `class` element; we can add other elements for other geoms as needed.
+I think, in this case, we need only know that the `geom` has class `"GeomPoint"`. For other geoms, we may need more information, so I propose that we think of this an object that has a `class` element; we can add other elements for other geoms as needed.
 
 ```{r}
 str(p$layers[[1]][["mapping"]])
