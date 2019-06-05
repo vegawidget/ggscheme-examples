@@ -1,5 +1,6 @@
 ---
 title: "First components of the ggspec function"
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
