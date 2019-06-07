@@ -179,7 +179,8 @@ str(data_spc(data_int(p$data, p$layers)), max.level = 2)
 Within each layer-object, we need:  
 1\. data (a reference id?)  
 2\. geom  
-3\. geom\_params (maybe) 4. mapping  
+3\. geom\_params (maybe)  
+4\. mapping  
 5\. aes\_params  
 6\. stat (maybe)  
 7\. stat\_params (maybe)
