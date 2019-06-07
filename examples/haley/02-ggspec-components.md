@@ -43,7 +43,7 @@ and `hash`.
 data_int <- function(data_plt, layers_plt) {
   # Return a named list of datasets, named `data-00`, `data-01`, ... 
   #join together default data and layer data
-  dat <- append(list(data_plt), map(layers_plt, pluck, "data"))
+  dat <- append(list(data_plt), purrr::map(layers_plt, purrr::pluck, "data"))
   
   #format the lists of data
   dat <- purrr::map(dat, format_data_int)
@@ -70,19 +70,23 @@ data_int <- function(data_plt, layers_plt) {
 # 
 ```
 
-`format_data_int()` will format each list of data so that it contains:  
-\- `metadata`, could be a named list, using names of variables:  
-\- `type`, first pass at `"quantitative"`, …, based on class, etc.  
-\- `levels`, optional, vector of strings, used for factor-levels  
-\- `variables`, the data frame itself  
-\- `hash`, the md5 hash of the data frame
+`format_data_int()` will format each list of data so that it contains:
+
+  - `metadata`, could be a named list, using names of variables:
+      - `type`, first pass at `"quantitative"`, …, based on class,
+        etc.  
+      - `levels`, optional, vector of strings, used for factor-levels  
+  - `variables`, the data frame itself  
+  - `hash`, the md5 hash of the data frame
+
+<!-- end list -->
 
 ``` r
 format_data_int <- function(dat) {
   if(is.waive(dat) || is.null(dat)) return(NULL) 
   else {
     list(
-      metadata = map_chr(dat, class),
+      metadata = purrr::map_chr(dat, class),
       variables = dat,
       hash = NULL # need to use digest package
     )
@@ -123,12 +127,12 @@ transpose of variables
 format_data_spec <- function(dat) {
   list(
     metadata = dat$metadata,
-    observations = transpose(dat$variables)
+    observations = purrr::transpose(dat$variables)
   )
 }
 
 data_spc <- function(data_int) {
-  map(data_int, format_data_spec)
+  purrr::map(data_int, format_data_spec)
 }
 ```
 
@@ -150,27 +154,32 @@ str(data_spc(data_int(p$data, p$layers)), max.level = 2)
 
 <br/>
 
-Within each layer-object, we need:  
-1\. data (a reference id?)  
-2\. geom  
-3\. geom\_params (maybe)  
-4\. mapping  
-5\. aes\_params  
-6\. stat (maybe)  
-7\. stat\_params (maybe)
+Within each layer-object, we need:
+
+1.  data (a reference id?)  
+2.  geom  
+3.  geom\_params (maybe)  
+4.  mapping  
+5.  aes\_params  
+6.  stat (maybe)  
+7.  stat\_params (maybe)
 
 <br/>
 
 The ggspec layers are a function of the ggplot layers, but also of the
 data and scales:
 
-Operates on a single layer, used with purrr::map() to get `layers_spc`  
-\- if `layer_plt` has no data, use `data-00`  
-\- if `layer_plt` has data, hash it and compare against `data_int`, use
-name  
-\- make sure that the mapping field is a name in the dataset  
-\- can use type from the dataset metadata for now, can incorporate
-scales later
+`layer_int()` calls `get_layers()` for each layer. `get_layers()`
+returns …
+
+  - if `layer_plt` has no data, use `data-00`  
+  - if `layer_plt` has data, hash it and compare against `data_int`, use
+    name  
+  - make sure that the mapping field is a name in the dataset  
+  - can use type from the dataset metadata for now, can incorporate
+    scales later
+
+<!-- end list -->
 
 ``` r
 get_layers <- function(layer) {
@@ -181,7 +190,7 @@ get_layers <- function(layer) {
     geom = list(
       class = pluck_layer("geom", class, 1)
     ),
-    mapping = pluck_layer("mapping") %>% map(get_mappings),
+    mapping = pluck_layer("mapping") %>% purrr::map(get_mappings),
     aes_params = pluck_layer("aes_params"),
     stat = list(
       class = pluck_layer("stat", class, 1)
@@ -191,7 +200,7 @@ get_layers <- function(layer) {
 
 
 layer_int <- function(layer_plt) {
-  map(layer_plt, get_layers)
+  purrr::map(layer_plt, get_layers)
 }
 ```
 
@@ -242,7 +251,7 @@ str(layer_int(p$layers))
     ##   ..$ stat      :List of 1
     ##   .. ..$ class: chr "StatIdentity"
 
-In `layer_spc` we will compare the layer data with `data_int` and
+In `layer_spc()` we will compare the layer data with `data_int` and
 determine the types of the variable by comparing with `data_int` and
 `scales_spc`
 
@@ -260,10 +269,12 @@ Example of function being used:
 
 <br/>
 
-I think that scales will be one-to-one: Operates on a single scale, used
-with purrr::map() to get `scales_spc`
+I think that scales will be one-to-one:
 
-will need to check if there is anything there…
+`scales_spc()` calls `get_scales()` which operates on a single scale,
+used with purrr::map(), to get …
+
+will need to first check if there is even anything there…
 
 ``` r
 get_scales <- function(scale) {
@@ -283,7 +294,7 @@ get_scales <- function(scale) {
 
 scale_spc <- function(scale_plt) {
   
-  map(scale_plt, get_scales)
+  purrr::map(scale_plt, get_scales)
 }
 ```
 
@@ -309,9 +320,9 @@ Finally, labels:
 
 ``` r
 find_scale_labs <- function(labs) {
-  lab <- pluck(labs, "name")
+  lab <- purrr::pluck(labs, "name")
   if(!is.waive(lab)) {
-    names(lab) <- pluck(labs, "aesthetics", 1)
+    names(lab) <- purrr::pluck(labs, "aesthetics", 1)
     lab
   }
   
@@ -320,7 +331,7 @@ find_scale_labs <- function(labs) {
 labels_spc <- function(labels_plt, scales_plt) {
   # Find the right way to deal with labels - we could run into a
   # problem if we have, say, multiple color scales
-  scale_labs <- map(p_scale$scales$scales, find_scale_labs)
+  scale_labs <- purrr::map(p_scale$scales$scales, find_scale_labs)
   
   # How to replace the labels with scale labels???
   
