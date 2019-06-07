@@ -128,11 +128,10 @@ str(data_int(p$data, p$layers))
 
 This intermediate-form could be used to generate the ggspec-form; it could also be useful later.
 
-`data_spc()` will return a named list of datasets, named `data-00`, `data-01`, ... 
+`data_spc()` will return a named list of datasets, named `data-00`, `data-01`, ... . Each list will have:  
 
-Each list will have:
-- `metadata`, as in `data_int()`
-- `observations`, transpose of variables
+- `metadata`, as in `data_int()`  
+- `observations`, transpose of variables  
 
 ```{r}
 format_data_spec <- function(dat) {
