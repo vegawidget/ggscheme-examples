@@ -5,8 +5,7 @@ library("listviewer")
 library("vegawidget")
 library("jsonlite")
 
-# iris$Petal.Length=iris$Petal.Length+10
-iris
+
 # ggplot2-object
 p <-
   ggplot(iris) +
@@ -35,12 +34,12 @@ str(p$labels)
 # ggspec
 ggjson<-fromJSON('
 {
-  "data": {
+  "data": [{
     "data-00": {
       "metadata": {},
       "observations": [{}, {}]
     }
-  },
+  }],
   "layers": [
     {
       "data": "data-00",
@@ -76,6 +75,7 @@ ggjson$data$`data-00`$observations=iris
 ggspec<-toJSON(ggjson,auto_unbox=TRUE)
 
 write(ggspec,'test.json')
+
 
 # vega-lite spec
 spec_iris <-
