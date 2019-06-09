@@ -12,12 +12,12 @@
         {
             "data": "data-00",
             "geom": {
-                "class": "GeomPoint",
-                "color": "",
-                "size": "",
-                "shape": "",
-                "opacity": "",
-                "filled": "true or false"
+                "class": "GeomPoint"
+            },
+            "aes_params":{
+                "colour": {
+                    "value":"red"
+                }
             },
             "mapping": {
                 "x": {
