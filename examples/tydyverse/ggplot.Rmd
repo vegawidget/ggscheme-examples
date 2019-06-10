@@ -1,0 +1,141 @@
+---
+title: "ggplot"
+output: html_document
+---
+
+### URL:https://ggplot2.tidyverse.org/reference/ggplot.html
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+library(ggplot2)
+library(jsonlite)
+library(listviewer)
+library(V8)
+library(vegawidget)
+```
+
+## example 1
+
+### ggplot2
+
+
+```{r}
+# Generate some sample data, then compute mean and standard deviation
+# in each group
+df <- data.frame(
+  gp = factor(rep(letters[1:3], each = 10)),
+  y = rnorm(30)
+)
+ds <- plyr::ddply(df, "gp", plyr::summarise, mean = mean(y), sd = sd(y))
+
+# The summary data frame ds is used to plot larger red points on top
+# of the raw data. Note that we don't need to supply `data` or `mapping`
+# in each layer because the defaults from ggplot() are used.
+p<-ggplot(df, aes(gp, y)) +
+  geom_point() +
+  geom_point(data = ds, aes(y = mean), colour = 'red', size = 3)
+
+p
+```
+
+### ggspec
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    },
+    "data-01": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+    
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "gp", "type": "ordinal"},
+        "y": {"field": "y", "type": "quantitative"}
+      }
+    },
+  {
+      "data": "data-01",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "gp", "type": "ordinal"},
+        "y": {"field": "mean", "type": "quantitative"}
+      },
+       "aes_params": {
+        "colour":{"value":"red"},
+        "size":{"value":3}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "gp",
+    "y": "y"
+  }
+}
+')
+
+ggjson$data$`data-00`$observations=df
+ggjson$data$`data-01`$observations=ds
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+
+
+```
+
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+## example 2
+
+### ggplot2
+
+```{r}
+# Alternatively we can fully specify the plot in each layer. This
+# is not useful here, but can be more clear when working with complex
+# mult-dataset graphics
+ggplot() +
+  geom_point(data = df, aes(gp, y)) +
+  geom_point(data = ds, aes(gp, mean), colour = 'red', size = 3) +
+  geom_errorbar(
+    data = ds,
+    aes(gp, mean, ymin = mean - sd, ymax = mean + sd),
+    colour = 'red',
+    width = 0.4
+  )
+```
+

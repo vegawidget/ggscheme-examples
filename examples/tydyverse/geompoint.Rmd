@@ -1,0 +1,649 @@
+---
+title: "geompoint"
+output: html_document
+---
+
+### URL:https://ggplot2.tidyverse.org/reference/geom_point.html
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+library(ggplot2)
+library(jsonlite)
+library(listviewer)
+library(V8)
+library(vegawidget)
+```
+
+## example 1
+
+### ggplot2
+
+
+```{r}
+p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+p
+```
+
+### ggspec
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg"
+  }
+}
+')
+
+ggjson$data$`data-00`$observations=mtcars
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+
+
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+## example 2
+
+### ggplot2
+
+```{r}
+p <- ggplot(mtcars, aes(wt, mpg)) + geom_point(aes(colour = factor(cyl)))
+p
+```
+
+### ggspec
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "colour": {"field": "factor(cyl)", "type": "nominal"}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg"
+  }
+}
+')
+
+data<-mtcars
+
+data$`factor(cyl)`=factor(mtcars$cyl)
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+## example 3
+
+### ggplot2
+
+```{r}
+p <- ggplot(mtcars, aes(wt, mpg)) + geom_point(aes(shape = factor(cyl)))
+p
+```
+
+### ggspec
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "shape": {"field": "factor(cyl)", "type": "nominal"}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg"
+  }
+}
+')
+
+data<-mtcars
+
+data$`factor(cyl)`=factor(mtcars$cyl)
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+
+## example 4
+
+### ggplot2
+
+```{r}
+p <- ggplot(mtcars, aes(wt, mpg)) + geom_point(aes(size = qsec))
+p
+```
+
+### ggspec
+
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "size": {"field": "qsec", "type": "ordinal"}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg",
+    "size":"qsec"
+  }
+}
+')
+
+data<-mtcars
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+## example 5
+
+### ggplot2
+
+```{r}
+p <- ggplot(mtcars, aes(wt, mpg)) + geom_point(colour = "red",size=3,alpha = 0.1)
+p
+```
+
+### ggspec
+
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"}
+        },
+      "aes_params":{
+        "colour":{"value":"red"},
+        "size":{"value":3},
+        "alpha":{"value":0.1}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg",
+    "size":"qsec"
+  }
+}
+')
+
+data<-mtcars
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+## example 6
+
+### ggplot2
+
+
+```{r}
+p <- ggplot(mtcars, aes(wt, mpg)) +
+  geom_point(shape = 5, colour = "black", fill = "white", size = 5, stroke = 5)
+p
+```
+
+### ggspec
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"}
+        },
+      "aes_params":{
+        "colour":{"value":"black"},
+        "size":{"value":3},
+        "shape":{"value":3},
+        "fill":{"value":"white"},
+        "stroke":{"value":5}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg"
+  }
+}
+')
+
+data<-mtcars
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+## example 7
+
+### ggplot2
+
+```{r}
+p <- ggplot(mtcars, aes(mpg, wt, shape = factor(cyl)))+
+  geom_point(aes(colour = factor(cyl)), size = 4)+
+  geom_point(colour = "grey90", size = 1.5)
+p
+```
+
+### ggspec
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "colour": {"field": "factor(cyl)", "type": "nominal"},
+        "shape": {"field": "factor(cyl)", "type": "nominal"}
+      },
+      "aes_params":{
+        "size":{"value":4}
+      }
+    },
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "shape": {"field": "factor(cyl)", "type": "nominal"}
+      },
+      "aes_params":{
+        "size":{"value":1.5},
+        "colour":{"value":"grey90"}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg"
+  }
+}
+')
+
+data<-mtcars
+
+data$`factor(cyl)`=factor(mtcars$cyl)
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+### example 8
+
+## ggplot2
+
+```{r}
+p <- ggplot(mtcars, aes(mpg, wt, shape = factor(cyl)))+
+  geom_point(colour = "black", size = 4.5) +
+  geom_point(colour = "pink", size = 4) +
+  geom_point(aes(shape = factor(cyl)))
+p
+```
+
+### ggspec
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "shape": {"field": "factor(cyl)", "type": "nominal"}
+      },
+      "aes_params":{
+        "size":{"value":4.5},
+        "colour":{"value":"black"}
+
+      }
+    },
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "shape": {"field": "factor(cyl)", "type": "nominal"}
+      },
+      "aes_params":{
+        "size":{"value":4},
+        "colour":{"value":"pink"}
+      }
+    },
+  {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "wt", "type": "quantitative"},
+        "y": {"field": "mpg", "type": "quantitative"},
+        "shape": {"field": "factor(cyl)", "type": "nominal"}
+      }
+    }
+  ],
+  "scales": [],
+  "labels": {
+    "x": "wt",
+    "y": "mpg"
+  }
+}
+')
+
+data<-mtcars
+
+data$`factor(cyl)`=factor(mtcars$cyl)
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
+
+
+

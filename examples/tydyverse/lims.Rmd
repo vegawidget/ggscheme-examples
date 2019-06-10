@@ -1,0 +1,119 @@
+---
+title: "lims"
+output: html_document
+---
+
+### URL:https://ggplot2.tidyverse.org/reference/lims.html
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+library(ggplot2)
+library(jsonlite)
+library(listviewer)
+library(V8)
+library(vegawidget)
+```
+
+## example1
+### ggplot2
+```{r}
+p <- ggplot(mtcars, aes(mpg, wt)) +
+  geom_point() +
+  scale_y_log10()
+
+p
+```
+
+### ggspec
+
+```{r}
+get_scales <- function(scale) {
+  
+  pluck_scale <- purrr::partial(purrr::pluck, .x = scale)
+    
+  list(
+    name = pluck_scale("name"),
+    class = pluck_scale(class, 1),
+    aesthetics = pluck_scale("aesthetics"),
+    limit=pluck_scale("limits"),
+    transform = list(
+      name = pluck_scale("trans", "name")
+    )
+  )
+}
+
+scale_spc <- function(scale_plt) {
+  purrr::map(scale_plt, get_scales)
+}
+
+str(scale_spc(p$scales$scales))
+
+```
+
+
+```{r}
+# ggspec
+ggjson<-fromJSON('
+{
+  "data": {
+    "data-00": {
+      "metadata": {},
+      "observations": [{}, {}]
+    }
+  },
+  "layers": [
+    {
+      "data": "data-00",
+      "geom": {"class": "GeomPoint"},
+      "mapping": {
+        "x": {"field": "mpg", "type": "quantitative"},
+        "y": {"field": "wt", "type": "quantitative"}
+      }
+    }
+  ],
+  "scales": [
+    {
+      class: 'ScaleContinuousPosition', 
+      aesthetics: 'y', 
+      transform: {type: 'log', base: 10}
+    }
+  ],
+  "labels": {
+    "x": "mpg",
+    "y": "wt"
+  }
+}
+')
+
+data<-mtcars
+
+ggjson$data$`data-00`$observations=data
+
+jsonedit(ggjson,mode='code')
+
+ggspec<-toJSON(ggjson,auto_unbox=TRUE)
+
+write(ggspec,'test.json')
+```
+
+### vega-lite
+```{r}
+
+# V8
+ct <- v8()
+
+ct$source("js/compile.js")
+
+ct$assign("ggspec", ggspec)
+
+ct$assign("ggspec",JS("JSON.parse(ggspec)"))
+
+vlspec<-ct$get(JS("ggvega.gg2vl(ggspec)"))
+
+as_vegaspec(vlspec)
+
+```
